@@ -1,7 +1,10 @@
+
 name: Android Build
 
 on:
   push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -17,11 +20,44 @@ jobs:
         with:
           node-version: 22
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
       - name: Install dependencies
         run: npm install
 
-      - name: Install TypeScript
-        run: npm install -D typescript
+      - name: Prepare web files
+        run: |
+          mkdir -p www
+          if [ -f index.html ]; then
+            cp index.html www/index.html
+          elif [ -f index.htlm ]; then
+            cp index.htlm www/index.html
+          else
+            echo "HTML file not found"
+            exit 1
+          fi
+
+      - name: Add Android Platform
+        run: |
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
 
       - name: Sync Capacitor Android
         run: npx cap sync android
+
+      - name: Build Android APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Memo-Maker-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
