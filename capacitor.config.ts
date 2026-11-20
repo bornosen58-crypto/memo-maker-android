@@ -1,9 +1,10 @@
+
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.memomaker.app',
   appName: 'Memo Maker',
-  webDir: '.',
+  webDir: 'www',
   bundledWebRuntime: false
 };
 
